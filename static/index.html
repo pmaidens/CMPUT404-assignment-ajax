@@ -48,8 +48,6 @@ function sendJSONXMLHTTPRequest(url, objects, callback) {
     };
     xhr.open("POST", url, true);
     xhr.setRequestHeader("Content-type", "application/json");
-    //XXX: set the mimetype and the accept headers!
-    // Remember to use application/json !
     xhr.send(JSON.stringify(objects));
 }
 
@@ -134,13 +132,19 @@ function getPosition(e) {
 	}
 }
 
-var worldChanges = [];
+function randomString(length) {
+    return Array(length+1).join((Math.random().toString(36)+'00000000000000000').slice(2, 18)).slice(0, length);
+}
+
+// var worldChanges = [];
 function addEntity(entity, data) {
     world[entity] = data;
-    worldChanges.push(data);
-    drawNextFrame(); // (but should we?)
+    // worldChanges.push(data);
+    // drawNextFrame(); // (but should we?)
     //XXX: Send a XHTML Request that updates the entity you just  modified!
-
+    sendJSONXMLHTTPRequest("/entity/"+randomString(10), data, function () {
+        // drawNextFrame();
+    });
 }
 
 var counter = 0;
@@ -264,10 +268,19 @@ mouse.mousedraggers.push(function(x,y,clicked,e) {
 
 function update() {
     //XXX: TODO Get the world from the webservice using a XMLHTTPRequest
-    sendJSONXMLHTTPRequest("http://localhost:5000/world", worldChanges, function(data) {
-        world = data;
+    sendJSONXMLHTTPRequest("http://localhost:5000/world", {}, function(data) {
+        var keys = Object.keys(data)
+        if(!keys.length) {
+            world = {};
+        } else {
+            keys.forEach(function (key) {
+                if (JSON.stringify(world[key]) !== JSON.stringify(data[key]) ) {
+                    world[key] = data[key];
+                }
+            });
+        }
+        drawNextFrame();
     });
-    worldChanges = [];
     drawFrame();
 }
 

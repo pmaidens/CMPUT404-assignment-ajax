@@ -24,6 +24,8 @@
 import flask
 from flask import Flask, request, redirect
 import json
+import random
+import string
 app = Flask(__name__)
 app.debug = True
 
@@ -50,6 +52,13 @@ class World:
 
     def get(self, entity):
         return self.space.get(entity,dict())
+
+    def getNewEntityName(self):
+        name =''.join(random.choice(string.lowercase) for i in range(10))
+        if name not in self.space:
+            return name
+        else:
+            return self.getNewEntityName()
 
     def world(self):
         return self.space
@@ -78,14 +87,15 @@ def hello():
 
 @app.route("/entity/<entity>", methods=['POST','PUT'])
 def update(entity):
-    '''update the entities via this interface'''
-    return None
+    myWorld.set(entity, json.loads(request.data))
+    return (json.dumps({'success':True}), 200, {'ContentType':'application/json'})
 
 @app.route("/world", methods=['POST','GET'])
 def world():
     '''you should probably return the world here'''
-    if request.method == 'POST':
-        '''blah'''
+    # if request.method == 'POST':
+    #     worldChanges = json.loads(request.data)
+    #     [(lambda point: myWorld.set(myWorld.getNewEntityName(), point))(point) for point in worldChanges]
     return json.dumps(myWorld.world()), 200, {'ContentType':'application/json'}
 
 @app.route("/entity/<entity>")
@@ -95,8 +105,8 @@ def get_entity(entity):
 
 @app.route("/clear", methods=['POST','GET'])
 def clear():
-    # myWorld.clear()
-    # return json.dumps({'success':True}), 200, {'ContentType':'application/json'}
+    myWorld.clear()
+    return json.dumps({'success':True}), 200, {'ContentType':'application/json'}
     return None
 
 if __name__ == "__main__":
