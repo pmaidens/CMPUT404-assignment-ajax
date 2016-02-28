@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
-# Copyright 2013 Abram Hindle
+# Copyright 2013 Abram Hindle, Peter Maidens
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -88,26 +88,25 @@ def hello():
 @app.route("/entity/<entity>", methods=['POST','PUT'])
 def update(entity):
     myWorld.set(entity, json.loads(request.data))
-    return (json.dumps({'success':True}), 200, {'ContentType':'application/json'})
+    return (json.dumps(myWorld.get(entity)), 200, {'ContentType':'application/json'})
 
 @app.route("/world", methods=['POST','GET'])
 def world():
     '''you should probably return the world here'''
-    # if request.method == 'POST':
-    #     worldChanges = json.loads(request.data)
-    #     [(lambda point: myWorld.set(myWorld.getNewEntityName(), point))(point) for point in worldChanges]
+    if request.method == 'POST':
+        worldChanges = json.loads(request.data)
+        [(lambda point: myWorld.set(myWorld.getNewEntityName(), point))(point) for point in worldChanges]
     return json.dumps(myWorld.world()), 200, {'ContentType':'application/json'}
 
 @app.route("/entity/<entity>")
 def get_entity(entity):
     '''This is the GET version of the entity interface, return a representation of the entity'''
-    return None
+    return (json.dumps(myWorld.get(entity)), 200, {'ContentType':'application/json'})
 
 @app.route("/clear", methods=['POST','GET'])
 def clear():
     myWorld.clear()
-    return json.dumps({'success':True}), 200, {'ContentType':'application/json'}
-    return None
+    return json.dumps(myWorld.world()), 200, {'ContentType':'application/json'}
 
 if __name__ == "__main__":
     app.run()
