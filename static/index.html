@@ -24,6 +24,10 @@
   </head>
   <body bgcolor="black" height="100%" width="100%">
     <canvas id="c" width="100%" height="100%" style="-webkit-tap-highlight-color: transparent;"></canvas>
+    <div style="display: none;">
+        <img id="gopher" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Go_gopher_mascot_bw.png/240px-Go_gopher_mascot_bw.png"/>
+        <img id="hole" src="http://vignette2.wikia.nocookie.net/runescape2/images/0/0d/Pawya_hole.png/revision/latest?cb=20111126222751" />
+    </div>
     <script>
 var canvas = document.getElementById('c');
 var host = window.location.host;
@@ -54,18 +58,15 @@ function sendJSONXMLHTTPRequest(url, objects, callback) {
 
 var world = {};
 
-//XXX: TODO Make this prettier!
 function drawCircle(context,entity) {
     with(context) {
-        beginPath();
-        lineWidth = 3;
-        var x = entity["x"];
-        var y = entity["y"];
-        //moveTo(x,y);
-        fillStyle = entity["colour"];
-        strokeStyle = fillStyle;
-        arc(x, y, (entity["radius"])?entity["radius"]:50, 0, 2.0 * Math.PI, false);
-        stroke();
+        if (entity.colour === "green") {
+            var image = document.getElementById("gopher");
+            drawImage(image, entity.x-24, entity.y-24, 48, 48);
+        } else {
+            var image = document.getElementById("hole");
+            drawImage(image, entity.x-40, entity.y+12, 80, 40);
+        }
     }
 }
 
@@ -246,7 +247,6 @@ mouse = (function() {
 })();
 
 // Add the application specific mouse listeners!
-//XXX: TODO Make these prettier!
 mouse.mousedowners.push(function(x,y,clicked,e) {
     addEntityWithoutName({'x':x,'y':y,'colour':'blue'});
 });
